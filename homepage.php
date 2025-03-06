@@ -106,7 +106,7 @@ if (!isset($_SESSION['username'])) {
         <a href="logout.php" class="w3-button w3-hover-red w3-right">LOG OUT</a>
 		<a class="w3-bar-item w3-button w3-hover-white w3-right">NOTIFICATION</a>
 		<a class="w3-bar-item w3-button w3-hover-white w3-right">HISTORY</a>
-		<a class="w3-bar-item w3-button w3-hover-white w3-right">RESERVATION</a>
+		<a href="reservation.php" class="w3-bar-item w3-button w3-hover-white w3-right">RESERVATION</a>
 		<a href="profile.php" class="w3-bar-item w3-button w3-hover-white w3-right">PROFILE</a>
 		<a class="w3-bar-item w3-button w3-hover-white w3-right">HOME</a>
 		</div>

@@ -1,16 +1,36 @@
 <?php
 session_start();
+if (!isset($_SESSION['username']) || !isset($_SESSION['role'])) {
+    header("Location: login.php");
+    exit();
+}
 include('database.php');
 
 $username = $_SESSION['username'];
 
-$query = "SELECT idno, lastname, firstname, midname, course, year_level, sessions, image_link, email, address FROM users WHERE username='$username'";
-$result = mysqli_query($conn, $query);
+$query = "SELECT user_id, role FROM users WHERE username = ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
-$student = mysqli_fetch_assoc($result);
+$row = $result->fetch_assoc();
+$role = $row['role'];
+
+if (!isset($user_id)) {
+    header("Location: homepage.php");
+    exit();
+}
+if ($role != 'admin') {
+    header("Location: admin.php");
+    exit();
+}
+
+$query = "SELECT idno. lastname, firstname, midname, course, year_level, sessions, image_link, email, address FROM students WHERE user_id=?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("i", $row['user_id']);
+$stmt->execute();
+$result = $stmt->get_result();
+$student = $result->fetch_assoc();
 
 $default_sessions = 30;
 
@@ -40,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Update the database
-    $update_query = "UPDATE users SET firstname=?, midname=?, lastname=?, course=?, year_level=?, image_link=?, email=?, address=? WHERE idno=?";
+    $update_query = "UPDATE students SET firstname=?, midname=?, lastname=?, course=?, year_level=?, image_link=?, email=?, address=? WHERE idno=?";
     $stmt = $conn->prepare($update_query);
     $stmt->bind_param("ssssssssi", $firstname, $midname, $lastname, $course, $year_level, $image_link, $email, $address, $idno);
     $stmt->execute();
@@ -197,13 +217,13 @@ $name_parts = explode(' ', $student['firstname'] . ' ' . $student['midname'] . '
 		<a href="logout.php" class="w3-button w3-hover-red w3-right">LOG OUT</a>
 		<a class="w3-bar-item w3-button w3-hover-white w3-right">NOTIFICATION</a>
 		<a class="w3-bar-item w3-button w3-hover-white w3-right">HISTORY</a>
-		<a class="w3-bar-item w3-button w3-hover-white w3-right">RESERVATION</a>
+		<a href="reservation.php" class="w3-bar-item w3-button w3-hover-white w3-right">RESERVATION</a>
 		<a href="profile.php" class="w3-bar-item w3-button w3-hover-white w3-right">PROFILE</a>
 		<a href="homepage.php" class="w3-bar-item w3-button w3-hover-white w3-right">HOME</a>
 		</div>
     </div>
 
-    <div class="profile-form w3-container w3-container">
+    <div class="profile-form w3-container">
         <form action="profile.php" method="post" enctype="multipart/form-data">
             <h1 class="w3-center"><b>STUDENT PROFILE</b></h1>
             <div class="profile-image" style="background-image: url('<?php echo !empty($student['image_link']) ? $student['image_link'] : 'images/default.png'; ?>');">
