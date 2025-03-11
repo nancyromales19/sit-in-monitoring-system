@@ -7,25 +7,23 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['role'])) {
 include('database.php');
 
 $username = $_SESSION['username'];
+$role = $_SESSION['role'];
+$user_id = null;
+
 
 $query = "SELECT user_id, role FROM users WHERE username = ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
-$row = $result->fetch_assoc();
-$role = $row['role'];
 
-if (!isset($user_id)) {
-    header("Location: homepage.php");
-    exit();
-}
-if ($role != 'admin') {
-    header("Location: admin.php");
-    exit();
-}
 
-$query = "SELECT idno. lastname, firstname, midname, course, year_level, sessions, image_link, email, address FROM students WHERE user_id=?";
+if ($row = $result->fetch_assoc()) {
+    $user_id = $row['user_id'];
+} 
+
+
+$query = "SELECT idno, lastname, firstname, midname, course, year_level, sessions, image_link, email, address FROM students WHERE user_id=?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("i", $row['user_id']);
 $stmt->execute();
@@ -87,9 +85,9 @@ $name_parts = explode(' ', $student['firstname'] . ' ' . $student['midname'] . '
 
     <style>
         body {
-            background-color: #cfe2f3;
+            height: 100%;
             margin: 0;
-            display: flex;
+            background-color: #cfe2f3;
             flex-direction: column;
             align-items: center;
         }

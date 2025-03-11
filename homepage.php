@@ -4,6 +4,26 @@ if (!isset($_SESSION['username'])) {
     header("Location: login.php");
     exit();
 }
+include('database.php');
+
+$username = $_SESSION['username'];
+
+$query = "SELECT user_id, role FROM users WHERE username = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("s", $username);
+$stmt->execute();
+$result = $stmt->get_result();
+$row = $result->fetch_assoc();
+$role = $row['role'];
+
+if ($role === 'admin') {
+    header("Location: admin.php");
+    exit();
+} else if ($role = 'student'){
+    
+} else {
+    header("Location: login.php");
+}
 ?>
 
 <!DOCTYPE html>

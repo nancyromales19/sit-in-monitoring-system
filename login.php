@@ -2,40 +2,44 @@
 session_start();
 include 'database.php';
 
+$errorMessage = "";
+
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-	$sql = "SELECT user_id, username, password, role FROM users WHERE username=?";
-	$stmt = $conn->prepare($sql);
-	$stmt->bind_param("s", $username);
-	$stmt->execute();
-	$result = $stmt->get_result();
-	
-	if ($result->num_rows == 1) {
-		$row = $result->fetch_assoc();
-		if($password == $row['password']) {
-			session_regenerate_id(true); // Regenerate session ID
-                $_SESSION['username'] = $username;
-                $_SESSION['role'] = $row['role']; 
-		
+	if (empty($username) || empty($password)) {
+		$errorMessage = "Please ENTER username and password.";
+	} else {
+		$sql = "SELECT user_id, username, password, role FROM users WHERE username = ?";
+		$stmt = $conn->prepare($sql);
+		$stmt->bind_param("s", $username);
+		$stmt->execute();
+		$result = $stmt->get_result();
+
+		if ($result->num_rows == 1) {
+			$row = $result->fetch_assoc();
+			if ($password == $row['password']) {
+				session_regenerate_id(true);
+				$_SESSION['username'] = $username;
+				$_SESSION['role'] = $row['role'];
+				
 				if ($row['role'] == 'admin') {
-                    header("Location: admin.php"); // Redirect to admin.php
-                } else {
-                    header("Location: homepage.php");
-                }
-                exit();
+					header("Location: admin.php");
+				} else {
+					header("Location: homepage.php");
+				}
+				exit();
+			} else {
+				$errorMessage = "Incorrect password.";
+			}
 		} else {
-			$errorMessage = "ERROR: Invalid password!";
+			$errorMessage = "Username not found.";
+			}
 		}
-	} else {
-		$errorMessage = "ERROR: User not found!";
-		}
-	} else {
-		$errorMessage = "ERROR: Please enter username and password!";
+
 	}
-
-
 ?>
 
 
@@ -193,16 +197,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <?php if (!empty($errorMessage)) { ?>
             modalMessage.textContent = "<?php echo $errorMessage; ?>";
             modal.style.display = "block";
-        <?php } ?>
-
-        <?php if (!empty($successMessage)) { ?>
-            modalMessage.textContent = "<?php echo $successMessage; ?>";
-            modal.style.display = "block";
-
-            // Redirect after a delay (e.g., 2 seconds)
-            setTimeout(function() {
-                window.location.href = "homepage.php";
-            }, 2000); // 2000 milliseconds = 2 seconds
         <?php } ?>
     </script>
 		</body>
