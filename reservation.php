@@ -1,24 +1,29 @@
 <?php
 session_start();
+if (!isset($_SESSION['username'])) {
+    header("Location: login.php");
+    exit();
+}
 include('database.php');
 
 $username = $_SESSION['username'];
 
-$query = "SELECT idno, lastname, firstname, midname, course, year_level, sessions, image_link, email, address FROM users WHERE username='$username'";
-$result = mysqli_query($conn, $query);
-$student = mysqli_fetch_assoc($result);
+$query = "SELECT user_id, role FROM users WHERE username = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("s", $username);
+$stmt->execute();
+$result = $stmt->get_result();
+$row = $result->fetch_assoc();
+$role = $row['role'];
 
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $firstname = $_POST['firstname'];
-    $midname = $_POST['midname'];
-    $lastname = $_POST['lastname'];
-    $idno = $student['idno'];
-
+if ($role === 'admin') {
+    header("Location: admin.php");
+    exit();
+} else if ($role = 'student'){
+    
+} else {
+    header("Location: login.php");
 }
-
-// Split name into parts for form population
-$name_parts = explode(' ', $student['firstname'] . ' ' . $student['midname'] . ' ' . $student['lastname']);
 ?>
 
 <!DOCTYPE html>
@@ -55,46 +60,6 @@ $name_parts = explode(' ', $student['firstname'] . ' ' . $student['midname'] . '
 			height: 70px;
 			padding: 0 20px;
 		}
-		.head{
-			margin-top: 50px;
-			font-size: 30px;
-		}
-		.reserve-button {
-			background-color: green;
-			color: white;
-			padding: 10px;
-			border: none;
-			border-radius: 10px;
-			cursor: pointer;
-			position: absolute;
-			width: 150px;
-			height: 40px;
-			box-shadow: 6px 9px 4px 0px rgba(0, 0, 0, 0.25);
-			right: 20px;
-		}
-		.reservation-form {
-            width: 1700px;
-            padding: 20px;
-            margin-top: 5px;
-            border-radius: 10px;
-			border: 1px solid black;
-            background-color: #94D1FF;
-            box-shadow: 14px 13px 4px 0px rgba(0, 0, 0, 0.25);
-            text-align: left;
-        }
-		.reservation-details {
-            display: inline-block;
-			width: 1650px;
-            height: 550px;
-			border-radius: 10px;
-			border: 1px solid black;
-			background-color: white;
-			color: black;
-			font-size: 18px;
-        }
-        .reservation-details p {
-            margin: 50px 0;
-        }
     </style>
 </head>
 <body>
@@ -103,29 +68,14 @@ $name_parts = explode(' ', $student['firstname'] . ' ' . $student['midname'] . '
 		<div class="w3-bar w3-right">
 		<a href="logout.php" class="w3-button w3-hover-red w3-right">LOG OUT</a>
 		<a class="w3-bar-item w3-button w3-hover-white w3-right">NOTIFICATION</a>
-		<a class="w3-bar-item w3-button w3-hover-white w3-right">HISTORY</a>
+		<a href="history.php" class="w3-bar-item w3-button w3-hover-white w3-right">HISTORY</a>
 		<a class="w3-bar-item w3-button w3-hover-white w3-right">RESERVATION</a>
 		<a href="profile.php" class="w3-bar-item w3-button w3-hover-white w3-right">PROFILE</a>
 		<a href="homepage.php" class="w3-bar-item w3-button w3-hover-white w3-right">HOME</a>
 		</div>
     </div>
-	
-	<p class="head"><b>Reservation</b></p>
-	
-	<div class="reservation-form w3-container">
-        <form action="" method="post" enctype="multipart/form-data">
-            <div class="reservation-details w3-container">
-				<p><strong>ID number : </strong><?php echo $student['idno']; ?></p>
-				<p><strong>Student Name : </strong><?php echo $student['firstname'] . ' ' . $student['midname'] . ' ' . $student['lastname']; ?></p>
-				<p><strong>Purpose :</strong></p>
-				<p><strong>Lab :</strong></p>
-				<p><strong>Time in :</strong></p>
-				<p><strong>Date :</strong></p>
-				<p><strong>Remaining sessions :</p>
-				<button type="button" class="reserve-button" ><b>RESERVE</b></button>
-			</div>
-        </form>
-    </div>
+	<br><br>
+	<div class="w3-center"><h2><b>RESERVATION</b></h2></div>
 
     
 </body>

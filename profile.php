@@ -30,7 +30,7 @@ $stmt->execute();
 $result = $stmt->get_result();
 $student = $result->fetch_assoc();
 
-$default_sessions = 30;
+$current_sessions = $student['sessions'] ?? 0;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $firstname = $_POST['firstname'];
@@ -237,7 +237,7 @@ $name_parts = explode(' ', $student['firstname'] . ' ' . $student['midname'] . '
 						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-						<strong># of Sessions :</strong> &nbsp;&nbsp;&nbsp; <?php echo $default_sessions; ?>
+						<strong># of Sessions :</strong> &nbsp;&nbsp;&nbsp;  <?php echo $current_sessions; ?>
 					</div>
 				</p>
 				<p><strong><i class="fa fa-user"></i>&nbsp;&nbsp;Student Name : </strong> &nbsp;&nbsp;&nbsp; <?php echo $student['firstname'] . ' ' . $student['midname'] . ' ' . $student['lastname']; ?></p>

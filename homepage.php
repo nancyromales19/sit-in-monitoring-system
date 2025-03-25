@@ -24,6 +24,20 @@ if ($role === 'admin') {
 } else {
     header("Location: login.php");
 }
+
+// Fetch announcements from the database
+$query = "SELECT a.announce_id, a.content, a.date, u.username 
+          FROM announcement a 
+          JOIN users u ON a.user_id = u.user_id 
+          ORDER BY a.date DESC";
+$result = $conn->query($query);
+$announcements = [];
+
+if ($result && $result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $announcements[] = $row;
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -125,7 +139,7 @@ if ($role === 'admin') {
 		<div class="w3-bar w3-right">
         <a href="logout.php" class="w3-button w3-hover-red w3-right">LOG OUT</a>
 		<a class="w3-bar-item w3-button w3-hover-white w3-right">NOTIFICATION</a>
-		<a class="w3-bar-item w3-button w3-hover-white w3-right">HISTORY</a>
+		<a href="history.php" class="w3-bar-item w3-button w3-hover-white w3-right">HISTORY</a>
 		<a href="reservation.php" class="w3-bar-item w3-button w3-hover-white w3-right">RESERVATION</a>
 		<a href="profile.php" class="w3-bar-item w3-button w3-hover-white w3-right">PROFILE</a>
 		<a class="w3-bar-item w3-button w3-hover-white w3-right">HOME</a>
@@ -142,18 +156,17 @@ if ($role === 'admin') {
             <div class="w3-card-4 w3-round-xlarge w3-container w3-padding"><br>
                 <div class="announce"><b><center><i class="fa fa-bullhorn"></i>&nbsp;&nbsp;ANNOUNCEMENT</center></b></div><br>
                 <hr class="line">
-                <form class="notified1">
-                    <p><b>CCS Admin | 2025-Feb-03</b></p>
-                    <p>The College of Computer Studies will open the<br>
-                        registration of students for the Sit-in privilege starting<br>
-                        tomorrow. Thank you ! Lab Supervisor</p>
-                    <hr class="underline">
-                    <p><b>CCS Admin | 2024-May-04</b></p>
-                    <p>Important Announcement, We are excited to <br>
-                        tell you that students who are enrolled in this<br>
-                        semester can now have 30 sessions of laboratory sit-ins.</p>
-                    <hr class="underline">
-                </form>
+                <div class="notified1">
+                    <?php if (empty($announcements)): ?>
+                        <p><center>No announcements yet.</center></p>
+                    <?php else: ?>
+                        <?php foreach ($announcements as $announcement): ?>
+                            <p><b><?php echo htmlspecialchars($announcement['username']); ?> | <?php echo date('Y-M-d', strtotime($announcement['date'])); ?></b></p>
+                            <p><?php echo nl2br(htmlspecialchars($announcement['content'])); ?></p>
+                            <hr class="underline">
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
 		
